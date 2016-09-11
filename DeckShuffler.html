@@ -1,0 +1,96 @@
+<!DOCTYPE HTML>
+<!-- Ryan C Admire, 21 March 2016. Shuffle some cards.        -->
+
+<HTML>
+<HEAD>
+<TITLE>Shuffle Cards</TITLE>
+<H2>This program shuffles a deck until the deck is back in its original configuration.</H2>
+<P>
+Original deck: 
+<P id="beforeShuffle"> </P>
+Results of shuffling:
+<P id="afterShuffle"> </P>
+</HEAD>
+
+<script>
+
+function shuffleDeck(d) {
+   for (var i=0; i<(numCards-1); i++) {
+      var picked = i + Math.floor(Math.random()*(numCards-i));
+      var holder = d[picked];
+      d[picked] = d[i];
+      d[i] = holder;
+   }
+} // end the function
+
+//function check the equality of arrays
+function isEqual(a, b){
+	if (a === b){
+		return true;
+	}
+	if (a == null || b == null){
+		return false;
+	}
+	
+	if(a.length != b.length){
+		return false;
+	}
+	
+	for(var i = 0; i < a.length; i++){
+		if(a[i] != b[i]){
+			return false;
+		}
+	}
+	
+	return true;
+} //end function
+
+var cardDeck = []; // a deck of cards
+var numCards = 3;  // constant, the number of cards
+var i;             // index into the array that holds the cards
+var shuffledDeck = []; //this will hold the shuffled deck of cards
+
+// initialize the deck
+for (i=0; i<numCards; i++) {
+   cardDeck[i] = i;
+}
+
+// shuffle the deck once
+shuffleDeck(cardDeck);
+
+//set the shuffled deck equal to the original
+shuffledDeck = cardDeck.slice(0);
+//shuffle it up
+shuffleDeck(shuffledDeck);
+
+// echo check the deck
+document.getElementById("beforeShuffle").innerHTML = cardDeck;
+
+var total_count = 0;
+
+for(var k = 0; k < 1000; k++){
+	
+	//set the shuffled deck equal to the original
+	shuffledDeck = cardDeck.slice(0);
+	//shuffle it up
+	shuffleDeck(shuffledDeck);
+	var count = 1;
+
+	while(!isEqual(cardDeck, shuffledDeck)){
+
+		// shuffle the deck again
+		shuffleDeck(shuffledDeck);
+		count++; //increment the count
+		
+	}
+	
+	total_count += count;
+}
+
+var average = total_count/1000;
+// echo check the shuffled deck
+document.getElementById("afterShuffle").innerHTML = "It took " + average + " attempts on average to get back to the original shuffle";
+
+</SCRIPT>
+</BODY>
+</HTML>
