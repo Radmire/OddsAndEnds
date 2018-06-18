@@ -1,0 +1,59 @@
+#!/bin/bash
+
+#########################################################
+# File: record_permissions                              #
+# Programmer: Ryan Admire                               #
+# Description: This script was written to determine the #
+#              permissions of all files and             #
+#              subdirectories of the given location. It #
+#              loops through the directories and outputs#
+#              the permissions, file owner, and file    #
+#              name to the file permissions.info        #
+#########################################################
+
+#validate our input(s)
+if [[ ! -d $1 || ! -d $2 ]]; then
+        echo "Error: Proper usage of script should be ./record_permissions search_directory output_directory"
+fi
+
+#set up our output variable to make code easier to read
+OUT="$2"
+
+#output the headers in the new file
+printf "%-11s\t%-10s\t%-75s\t%-10s\n" "Permissions" "Owner" "File Name" "Directory?" > "$OUT/permissions.info"
+
+#for each directory in our starting directory
+for dir in $1/* $1/**/*
+do
+
+        #if it is in fact a directory
+        if [ -d "$dir" ]; then
+                cd "$dir"            #move into it
+                VALS=`ls -l "$dir"`  #list all the contents
+                dir=`pwd`            #set dir to pwd
+
+                #we will need to skip the first iteration of the below loop
+                count=0
+
+                #until all files are seen
+                while IFS=" " read perms numLinks owner owner_group size month_modified day_modified time_modified name
+                do
+                        if [[ $count -eq 0 ]]; then
+                                count=1;
+                        else
+                                perms=`stat --format '%a' "$name"` > /dev/null 2>/dev/null #outputs the permissions in octal format. Errors are discarded here.
+
+                                #if file in question is a directory
+                                if [ -d "$name" ]; then
+                                        printf "%-11s\t%-10s\t%-75s\t%-10s\n" "$perms" "$owner" "$dir/$name" "yes" >> "$OUT/permissions.info"
+                                else
+                                        printf "%-11s\t%-10s\t%-75s\n" "$perms" "$owner" "$dir/$name" >> "$OUT/permissions.info"
+                                fi
+                        fi
+
+                done <<< "$VALS"
+
+        fi
+done
+
+cd $2 #put the user in the output directory so they can view the file.
